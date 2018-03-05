@@ -24,6 +24,7 @@ services:
     volumes:
       - ./secrets:/tmp/keytab
       - /dev/urandom:/dev/random
+      - ./logs:/var/logs/kerberos/
 
   zookeeper:
     build:
