@@ -1,4 +1,4 @@
-Secure Kafka in Docker
+SSL/SASL Kafka in Docker with OPA authorization
 ===
 
 Create certificates for SSL/SASL/Kerberos
@@ -13,13 +13,13 @@ Start OPA, Kerberos, Zookeeper, Kafka broker, a producer and a consumer.
     docker logs producer
     docker logs consumer
 
-OPA policy stops producer and consumer from creating the topic "X".
+OPA policy stops producer and consumer from creating the topic "X" so they keep failing.
 
-Create the topic from the broker (as user kafka).
+Create the topic from the broker box (as user kafka).
 
     docker exec -it broker bash -c "kafka-topics --zookeeper zookeeper --create --topic X --partitions 1 --replication-factor 1"
 
-Once the topic is created producer and consumer can access it.
+Soon after the topic is created the producer and the consumer can access it.
 
     docker logs producer
     docker logs consumer

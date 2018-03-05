@@ -27,10 +27,12 @@ import input as kafka_request
 
 default allow = false
 
+# Allow user kafka everything
 allow {
   kafka_request.session.principal.name = "kafka"
 }
 
+# Allow saslproducer to write to topic X
 allow {
   kafka_request.session.principal.principalType = "User"
   kafka_request.session.principal.name = "saslproducer"
@@ -39,6 +41,7 @@ allow {
   kafka_request.operation.name = "Write"
 }
 
+# Allow saslproducer to describe topic X
 allow {
   kafka_request.resource.resourceType.name = "Topic"
   kafka_request.resource.name = "X"
@@ -47,6 +50,7 @@ allow {
   kafka_request.operation.name = "Describe"
 }
 
+# Allow saslconsumer to read from topic X
 allow {
   kafka_request.resource.resourceType.name = "Topic"
   kafka_request.resource.name = "X"
@@ -55,6 +59,7 @@ allow {
   kafka_request.operation.name = "Read"
 }
 
+# Allow saslconsumer to describe topic X
 allow {
   kafka_request.resource.resourceType.name = "Topic"
   kafka_request.resource.name = "X"
@@ -63,6 +68,7 @@ allow {
   kafka_request.operation.name = "Describe"
 }
 
+# Allow saslconsumer to describe consumer group ssl-sasl-host
 allow {
   kafka_request.resource.resourceType.name = "Group"
   kafka_request.resource.name = "ssl-sasl-host"
@@ -71,6 +77,7 @@ allow {
   kafka_request.operation.name = "Describe"
 }
 
+# Allow saslconsumer to read consumer group ssl-sasl-host
 allow {
   kafka_request.resource.resourceType.name = "Group"
   kafka_request.resource.name = "ssl-sasl-host"
@@ -79,6 +86,7 @@ allow {
   kafka_request.operation.name = "Read"
 }
 
+# Allow saslconsumer to write consumer group ssl-sasl-host
 allow {
   kafka_request.resource.resourceType.name = "Group"
   kafka_request.resource.name = "ssl-sasl-host"

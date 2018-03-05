@@ -14,7 +14,7 @@ services:
 
   kerberos:
     build:
-      context: .
+      context: docker
       dockerfile: Dockerfile.kerberos
     container_name: kerberos
     hostname: kerberos.kafkasecurity_default
@@ -27,7 +27,7 @@ services:
 
   zookeeper:
     build:
-      context: .
+      context: docker
       dockerfile: Dockerfile.zookeeper
     image: zookeeper
     restart: on-failure:3
@@ -54,7 +54,7 @@ services:
 
   broker:
     build:
-      context: .
+      context: docker
       dockerfile: Dockerfile.broker
     image: broker
     restart: on-failure:3
@@ -97,7 +97,7 @@ services:
 
   producer:
     build:
-      context: .
+      context: docker
       dockerfile: Dockerfile.broker
     image: broker
     container_name: producer
@@ -123,7 +123,7 @@ services:
 
   consumer:
     build:
-      context: .
+      context: docker
       dockerfile: Dockerfile.broker
     image: broker
     restart: always
