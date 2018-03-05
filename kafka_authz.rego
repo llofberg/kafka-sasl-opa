@@ -78,3 +78,11 @@ allow {
   kafka_request.session.principal.name = "saslconsumer"
   kafka_request.operation.name = "Read"
 }
+
+allow {
+  kafka_request.resource.resourceType.name = "Group"
+  kafka_request.resource.name = "ssl-sasl-host"
+  kafka_request.session.principal.principalType = "User"
+  kafka_request.session.principal.name = "saslconsumer"
+  kafka_request.operation.name = "Write"
+}

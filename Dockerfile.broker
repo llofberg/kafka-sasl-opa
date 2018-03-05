@@ -3,9 +3,31 @@ FROM confluentinc/cp-enterprise-kafka
 ARG JAVA_HOME=/usr/lib/jvm/zulu-8-amd64
 
 RUN apt-get update
-RUN apt-get install -y unzip emacs-nox
+RUN apt-get install -y unzip emacs-nox git
+
+ARG MAVEN_VERSION=3.5.2
+ARG USER_HOME_DIR="/root"
+ARG SHA=707b1f6e390a65bde4af4cdaf2a24d45fc19a6ded00fff02e91626e3e42ceaff
+ARG BASE_URL=https://apache.osuosl.org/maven/maven-3/${MAVEN_VERSION}/binaries
+
+RUN mkdir -p /usr/share/maven /usr/share/maven/ref \
+    && curl -fsSL -o /tmp/apache-maven.tar.gz ${BASE_URL}/apache-maven-${MAVEN_VERSION}-bin.tar.gz \
+    && echo "${SHA}  /tmp/apache-maven.tar.gz" | sha256sum -c - \
+    && tar -xzf /tmp/apache-maven.tar.gz -C /usr/share/maven --strip-components=1 \
+    && rm -f /tmp/apache-maven.tar.gz \
+    && ln -s /usr/share/maven/bin/mvn /usr/bin/mvn
 
 RUN cd /tmp \
     && wget https://cdn.azul.com/zcek/bin/ZuluJCEPolicies.zip \
     && unzip -jo -d ${JAVA_HOME}/jre/lib/security /tmp/ZuluJCEPolicies.zip \
     && rm /tmp/ZuluJCEPolicies.zip
+
+RUN cd /tmp \
+    && git clone https://github.com/llofberg/kafka-authorizer-opa.git \
+    && cd kafka-authorizer-opa \
+    && mvn -Dmaven.repo.local=/tmp/.m2 -B clean package \
+    && mkdir -p /opt/kafka-authorizer-opa/ \
+    && cp target/kafka-authorizer-opa-*package/share/java/kafka-authorizer-opa/* /opt/kafka-authorizer-opa/ \
+    && cd /tmp \
+    && rm -fr kafka-authorizer-opa \
+    && rm -fr .m2
