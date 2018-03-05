@@ -1,4 +1,4 @@
-SSL/SASL Kafka in Docker with OPA authorization
+Kafka in Docker with SSL/SASL and OPA authorization
 ===
 
 Create certificates for SSL/SASL/Kerberos
