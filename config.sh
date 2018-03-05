@@ -8,8 +8,6 @@
 : ${KERB_ADMIN_USER:=admin}
 : ${KERB_ADMIN_PASS:=admin}
 
-
-
 create_config() {
   : ${KDC_ADDRESS:=$(hostname -f)}
 
@@ -120,11 +118,11 @@ main() {
     kadmin.local -q "addprinc -randkey kafka/broker.kafkasecurity_default@$REALM"
     kadmin.local -q "ktadd -norandkey -k /tmp/keytab/broker1.keytab kafka/broker.kafkasecurity_default@$REALM"
 
-    kadmin.local -q "addprinc -randkey saslproducer/$DOMAIN_REALM@$REALM"
-    kadmin.local -q "ktadd -norandkey -k /tmp/keytab/saslproducer.keytab saslproducer/$DOMAIN_REALM@$REALM"
+    kadmin.local -q "addprinc -randkey saslproducer/producer.kafkasecurity_default@$REALM"
+    kadmin.local -q "ktadd -norandkey -k /tmp/keytab/saslproducer.keytab saslproducer/producer.kafkasecurity_default@$REALM"
 
-    kadmin.local -q "addprinc -randkey saslconsumer/$DOMAIN_REALM@$REALM"
-    kadmin.local -q "ktadd -norandkey -k /tmp/keytab/saslconsumer.keytab saslconsumer/$DOMAIN_REALM@$REALM"
+    kadmin.local -q "addprinc -randkey saslconsumer/consumer.kafkasecurity_default@$REALM"
+    kadmin.local -q "ktadd -norandkey -k /tmp/keytab/saslconsumer.keytab saslconsumer/consumer.kafkasecurity_default@$REALM"
     echo DONE
     tail -F /var/log/kerberos/krb5kdc.log
   fi
