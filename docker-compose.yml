@@ -2,6 +2,16 @@
 version: '2'
 services:
 
+  opa:
+    container_name: opa
+    hostname: opa.kafkasecurity_default
+    image: openpolicyagent/opa:0.7.0
+    ports:
+      - 8181:8181
+    command: "run --server --log-level=debug /data/kafka_authz.rego"
+    volumes:
+      - ./:/data
+
   kerberos:
     build:
       context: .
@@ -75,8 +85,16 @@ services:
         -Djava.security.auth.login.config=/etc/kafka/secrets/broker1_jaas.conf
         -Djava.security.krb5.conf=/etc/kafka/secrets/krb.conf
         -Dsun.security.krb5.debug=false
+      KAFKA_AUTHORIZER_CLASS_NAME: com.lbg.kafka.opa.OpaAuthorizer
+      KAFKA_OPA_AUTHORIZER_URL: "http://opa.kafkasecurity_default:8181/v1/data/kafka/authz/allow"
+      KAFKA_OPA_AUTHORIZER_ALLOW_ON_ERROR: "false"
+      KAFKA_OPA_AUTHORIZER_CACHE_INITIAL_CAPACITY: 100
+      KAFKA_OPA_AUTHORIZER_CACHE_MAXIMUM_SIZE: 100
+      KAFKA_OPA_AUTHORIZER_CACHE_EXPIRE_AFTER_MS: 600000
+      CLASSPATH: /jars/kafka-authorizer-opa-1.0-SNAPSHOT.jar:/jars/gson-2.8.2.jar
     volumes:
       - ./secrets:/etc/kafka/secrets
+      - ./target/kafka-authorizer-opa-1.0-SNAPSHOT-package/share/java/kafka-authorizer-opa/:/jars
 
   producer:
     build:
