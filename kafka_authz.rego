@@ -2,8 +2,6 @@ package kafka.authz
 
 # Kafka authorize request
 
-clusters = {"Cluster:kafka-cluster": ["t1"]}
-
 import input as kafka_request
 
 # {"input":
