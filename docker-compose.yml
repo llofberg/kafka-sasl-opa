@@ -122,7 +122,6 @@ services:
       context: docker
       dockerfile: Dockerfile.broker
     image: broker
-    restart: always
     container_name: consumer
     hostname: consumer.kafkasecurity_default
     depends_on:

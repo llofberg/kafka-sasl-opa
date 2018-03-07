@@ -8,6 +8,7 @@ import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.common.KafkaException;
 import org.apache.kafka.common.config.SaslConfigs;
 import org.apache.kafka.common.config.SslConfigs;
 import org.apache.kafka.common.serialization.LongDeserializer;
@@ -53,26 +54,27 @@ public class KafkaOpaConsumer {
     props.put(SaslConfigs.SASL_MECHANISM, "GSSAPI");
     props.put(SaslConfigs.SASL_KERBEROS_SERVICE_NAME, "kafka");
 
-    // Create the consumer using props.
-    final Consumer<Long, String> consumer = new KafkaConsumer<>(props);
+    while (keepRunning) {
+      try {
+        // Create the consumer using props.
+        @Cleanup final Consumer<Long, String> consumer = new KafkaConsumer<>(props);
 
-    // Subscribe to the topic.
-    consumer.subscribe(Collections.singletonList(TOPIC));
+        // Subscribe to the topic.
+        consumer.subscribe(Collections.singletonList(TOPIC));
 
-    try {
-      while (keepRunning) {
-        final ConsumerRecords<Long, String> consumerRecords =
-          consumer.poll(10000);
+        while (keepRunning) {
+          final ConsumerRecords<Long, String> consumerRecords =
+            consumer.poll(10000);
 
-        consumerRecords.forEach(record -> {
-          log.error("{} => {}", record, allow(record.value()));
-        });
-
-        consumer.commitAsync();
+          consumerRecords.forEach(record -> log.error("{} => {}", record, allow(record.value())));
+          consumer.commitAsync();
+        }
+      } catch (Exception ignored) {
+        try {
+          Thread.sleep(2000);
+        } catch (InterruptedException ignored2) {
+        }
       }
-    } finally {
-      consumer.close();
-      System.out.println("DONE");
     }
   }
 
@@ -91,13 +93,11 @@ public class KafkaOpaConsumer {
       os.write(("{\"input\":" + input + "}").getBytes());
       os.flush();
 
-      if (log.isTraceEnabled()) {
-        log.trace("Response code: {}, Request data: {}", conn.getResponseCode(), input);
-      }
-
       @Cleanup BufferedReader br = new BufferedReader(new InputStreamReader((conn.getInputStream())));
       String json = br.readLine();
-      log.error("REQ: {} RSP: {}", input, json);
+
+      log.debug("REQ: {} RSP: {}", input, json);
+
       Map map = gson.fromJson(json, Map.class);
       return map.containsKey("result") && (boolean) map.get("result");
     } catch (IOException e) {

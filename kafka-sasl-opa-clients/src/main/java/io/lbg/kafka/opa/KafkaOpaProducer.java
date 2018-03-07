@@ -11,7 +11,6 @@ import org.apache.kafka.common.serialization.LongSerializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 
 import java.util.Properties;
-import java.util.concurrent.ExecutionException;
 
 @Slf4j
 public class KafkaOpaProducer {
@@ -20,11 +19,11 @@ public class KafkaOpaProducer {
   private final static String BOOTSTRAP_SERVERS = "broker:9093";
   private boolean keepRunning = true;
 
-  public static void main(String[] args) throws ExecutionException, InterruptedException {
+  public static void main(String[] args) {
     new KafkaOpaProducer().run();
   }
 
-  private void run() throws ExecutionException, InterruptedException {
+  private void run() {
     log.error("run err");
 
     Properties props = new Properties();
@@ -44,23 +43,28 @@ public class KafkaOpaProducer {
     props.put(SaslConfigs.SASL_MECHANISM, "GSSAPI");
     props.put(SaslConfigs.SASL_KERBEROS_SERVICE_NAME, "kafka");
 
-    KafkaProducer<Long, String> producer = new KafkaProducer<>(props);
+    while (keepRunning) {
+      try {
 
-    long index = 0;
-    try {
-      while (keepRunning) {
-        String value = "{\"id\":" + ++index + (index % 2 == 0 ? ",\"k\":\"v\"" : "") + "}";
-        final ProducerRecord<Long, String> record = new ProducerRecord<>(TOPIC, index, value);
-        log.error("{}", record);
-        producer.send(record).get();
+        long index = 0;
+        try (KafkaProducer<Long, String> producer = new KafkaProducer<>(props)) {
+          while (keepRunning) {
+            String value = "{\"id\":" + ++index + (index % 2 == 0 ? ",\"k\":\"v\"" : "") + "}";
+            final ProducerRecord<Long, String> record = new ProducerRecord<>(TOPIC, index, value);
+            log.error("{}", record);
+            producer.send(record).get();
+            try {
+              Thread.sleep(2000);
+            } catch (InterruptedException ignored) {
+            }
+          }
+        }
+      } catch (Exception ignored) {
         try {
           Thread.sleep(2000);
-        } catch (InterruptedException ignored) {
+        } catch (InterruptedException ignored2) {
         }
       }
-    } finally {
-      producer.flush();
-      producer.close();
     }
   }
 }
