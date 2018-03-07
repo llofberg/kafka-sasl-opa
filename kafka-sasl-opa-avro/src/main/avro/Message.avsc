@@ -1,0 +1,8 @@
+{"namespace": "io.lbg.kafka.opa",
+ "type": "record",
+ "name": "Message",
+ "fields": [
+     {"name": "messageId", "type": "long"},
+     {"name": "messageContent",  "type": "string"}
+ ]
+}

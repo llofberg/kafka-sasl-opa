@@ -10,3 +10,6 @@
 *_creds
 *.log
 *~
+.idea
+*.iml
+target

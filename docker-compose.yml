@@ -8,7 +8,7 @@ services:
     image: openpolicyagent/opa:0.7.0
     ports:
       - 8181:8181
-    command: "run --server --log-level=debug /data/kafka_authz.rego"
+    command: "run --server --log-level=debug /data/kafka_authz.rego /data/kafka_message.rego"
     volumes:
       - ./:/data
 
@@ -98,8 +98,8 @@ services:
 
   producer:
     build:
-      context: docker
-      dockerfile: Dockerfile.broker
+      context: .
+      dockerfile: docker/Dockerfile.clients
     image: broker
     container_name: producer
     hostname: producer.kafkasecurity_default
@@ -108,16 +108,11 @@ services:
       - zookeeper
       - broker
     command: >-
-      bash -c "
-      while true;
-        do
-        echo $$C | kafka-console-producer --broker-list broker:9093 --topic X --producer.config /etc/kafka/secrets/host.producer.ssl.sasl.config && C=$$[$$C +1];
-        sleep 2;
-      done"
-    environment:
-      KAFKA_OPTS: >-
-        -Djava.security.auth.login.config=/etc/kafka/secrets/producer_jaas.conf
-        -Djava.security.krb5.conf=/etc/kafka/secrets/krb.conf
+      java
+          -Djava.security.krb5.conf=/etc/kafka/secrets/krb.conf
+          -Djava.security.auth.login.config=/etc/kafka/secrets/producer_jaas.conf
+          -cp /data/kafka-sasl-opa-clients/target/kafka-sasl-opa-clients-1.0-SNAPSHOT.jar
+        io.lbg.kafka.opa.KafkaOpaProducer
     volumes:
       - ./secrets/:/etc/kafka/secrets
       - ./:/data
@@ -135,11 +130,12 @@ services:
       - zookeeper
       - broker
       - producer
-    command: kafka-console-consumer --bootstrap-server broker:9093 --topic X --consumer.config /etc/kafka/secrets/host.consumer.ssl.sasl.config
-    environment:
-      KAFKA_OPTS: >-
-        -Djava.security.auth.login.config=/etc/kafka/secrets/consumer_jaas.conf
+    command: >-
+      java
         -Djava.security.krb5.conf=/etc/kafka/secrets/krb.conf
+        -Djava.security.auth.login.config=/etc/kafka/secrets/consumer_jaas.conf
+        -cp /data/kafka-sasl-opa-clients/target/kafka-sasl-opa-clients-1.0-SNAPSHOT.jar
+        io.lbg.kafka.opa.KafkaOpaConsumer
     volumes:
       - ./secrets/:/etc/kafka/secrets
       - ./:/data

@@ -1,0 +1,3 @@
+FROM broker
+
+ADD kafka-sasl-opa-clients/target/kafka-sasl-opa-clients-1.0-SNAPSHOT.jar /opt/
