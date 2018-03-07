@@ -6,6 +6,10 @@ Create certificates for SSL/SASL/Kerberos
     cd secrets
     ./create-certs.sh
 
+Build Java clients
+
+    mvn clean package
+
 Start OPA, Kerberos, Zookeeper, Kafka broker, a producer and a consumer.
 
     cd ..

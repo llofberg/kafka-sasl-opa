@@ -8,7 +8,6 @@ import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
-import org.apache.kafka.common.KafkaException;
 import org.apache.kafka.common.config.SaslConfigs;
 import org.apache.kafka.common.config.SslConfigs;
 import org.apache.kafka.common.serialization.LongDeserializer;
@@ -56,17 +55,11 @@ public class KafkaOpaConsumer {
 
     while (keepRunning) {
       try {
-        // Create the consumer using props.
         @Cleanup final Consumer<Long, String> consumer = new KafkaConsumer<>(props);
-
-        // Subscribe to the topic.
         consumer.subscribe(Collections.singletonList(TOPIC));
-
         while (keepRunning) {
-          final ConsumerRecords<Long, String> consumerRecords =
-            consumer.poll(10000);
-
-          consumerRecords.forEach(record -> log.error("{} => {}", record, allow(record.value())));
+          final ConsumerRecords<Long, String> consumerRecords = consumer.poll(10000);
+          consumerRecords.forEach(record -> log.debug("{} => {}", record, allow(record.value())));
           consumer.commitAsync();
         }
       } catch (Exception ignored) {
@@ -95,8 +88,6 @@ public class KafkaOpaConsumer {
 
       @Cleanup BufferedReader br = new BufferedReader(new InputStreamReader((conn.getInputStream())));
       String json = br.readLine();
-
-      log.debug("REQ: {} RSP: {}", input, json);
 
       Map map = gson.fromJson(json, Map.class);
       return map.containsKey("result") && (boolean) map.get("result");
