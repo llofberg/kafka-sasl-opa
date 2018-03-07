@@ -3,15 +3,16 @@ Kafka in Docker with SSL/SASL and OPA authorization
 
 Create certificates for SSL/SASL/Kerberos
 
-    cd secrets
-    ./create-certs.sh
+    (cd secrets ; ./create-certs.sh)
+
+Build Java clients
+
+    mvn clean package
 
 Start OPA, Kerberos, Zookeeper, Kafka broker, a producer and a consumer.
 
-    cd ..
     docker-compose up -d
     docker logs producer
-    docker logs consumer
 
 OPA policy stops producer and consumer from creating the topic "X" so they keep failing.
 
@@ -21,7 +22,8 @@ Create the topic from the broker box (as user kafka).
 
 Soon after the topic is created the producer and the consumer can access it.
 
-    docker logs producer
+Note that consumer also queries OPA for policy decision on the received message.
+
     docker logs consumer
 
     docker-compose down
