@@ -28,6 +28,7 @@ public class KafkaOpaConsumer {
 
   private final static String TOPIC = "X";
   private final static String BOOTSTRAP_SERVERS = "broker:9093";
+  private static final String OPA_URL = "http://opa:8181/v1/data/kafka/message/allow";
   private boolean keepRunning = true;
 
   public static void main(String[] args) {
@@ -76,7 +77,7 @@ public class KafkaOpaConsumer {
   private boolean allow(String input) {
     try {
       HttpURLConnection conn = (HttpURLConnection)
-        new URL("http://opa:8181/v1/data/kafka/message/allow").openConnection();
+        new URL(OPA_URL).openConnection();
 
       conn.setDoOutput(true);
       conn.setRequestMethod("POST");
