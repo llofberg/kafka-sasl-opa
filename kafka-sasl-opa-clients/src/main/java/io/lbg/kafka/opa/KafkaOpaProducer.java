@@ -24,8 +24,6 @@ public class KafkaOpaProducer {
   }
 
   private void run() {
-    log.error("run err");
-
     Properties props = new Properties();
     props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, BOOTSTRAP_SERVERS);
     props.put(ProducerConfig.CLIENT_ID_CONFIG, "KafkaExampleProducer");
@@ -51,7 +49,7 @@ public class KafkaOpaProducer {
           while (keepRunning) {
             String value = "{\"id\":" + ++index + (index % 2 == 0 ? ",\"k\":\"v\"" : "") + "}";
             final ProducerRecord<Long, String> record = new ProducerRecord<>(TOPIC, index, value);
-            log.error("{}", record);
+            log.debug("{}", record);
             producer.send(record).get();
             try {
               Thread.sleep(2000);
